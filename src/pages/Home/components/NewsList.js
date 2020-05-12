@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
+import React, { useRef, forwardRef, useImperativeHandle } from 'react'
 import styled from 'styled-components';
 import Scroll from '../../../components/Scroll';
 
@@ -21,25 +21,24 @@ const PullUpLoading = styled.div`
 const NewsList = forwardRef((props, ref) => {
   const { pullUp, pullDown } = props
   const scrollRef = useRef()
-  const onPullUp = () => {
-    pullUp()
-  }
-  const onPullDown = () => {
-    pullDown()
-  }
   useImperativeHandle(ref, () => ({
-      finish () {
+      load () {
         const bScroll = scrollRef.current.getBScroll()
+        bScroll.refresh()
+      },
+      refresh () {
+        const bScroll = scrollRef.current.getBScroll()
+        bScroll.refresh()
         bScroll.scrollTo(0, -20)
       }
   }))
   return (
     <ListContainer>
-      <Scroll ref={scrollRef} direction={'vertical'} pullUp={onPullUp} pullDown={onPullDown} startY={-20}>
+      <Scroll ref={scrollRef} direction={'vertical'} pullUp={pullUp} pullDown={pullDown} startY={-20}>
         <div>
           <PullDownLoading>刷新中~</PullDownLoading>
           {props.children}
-          <PullUpLoading>加载中~~</PullUpLoading>
+          {props.children.length > 0 && <PullUpLoading>加载中~~</PullUpLoading>}
         </div>
       </Scroll>
     </ListContainer>

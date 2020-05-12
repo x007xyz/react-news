@@ -68,26 +68,20 @@ const Scroll = forwardRef((props, ref) => {
     if (!bScroll || !pullDown) return
     bScroll.on('touchEnd', (pos) => {
       //判断用户的下拉动作
-      if(pos.y > 50) {
+      if(pos.y > startY) {
         pullDownDebounce();
       }
     })
     return () => {
       bScroll.off('touchEnd')
     }
-  }, [bScroll, pullDown, pullDownDebounce])
+  }, [bScroll, pullDown, pullDownDebounce, startY])
   useEffect(() => {
     if(refresh && bScroll){
       bScroll.refresh();
     }
   });
   useImperativeHandle(ref, () => ({
-    refresh() {
-      if(bScroll) {
-        bScroll.refresh();
-        bScroll.scrollTo(0, 0);
-      }
-    },
     getBScroll() {
       if(bScroll) {
         return bScroll;
