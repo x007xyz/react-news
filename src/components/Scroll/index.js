@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle, useMemo } from 'react'
-import BScroll from "better-scroll";
+import BScroll from "@better-scroll/core";
+import PullDown from '@better-scroll/pull-down'
 import PropTypes from "prop-types";
 import styled from 'styled-components';
-
 import { debounce } from "../../utils";
+
+BScroll.use(PullDown)
 
 const ScrollContainer = styled.div`
   width: 100%;
@@ -14,13 +16,17 @@ const ScrollContainer = styled.div`
 const Scroll = forwardRef((props, ref) => {
   const [bScroll, setBScroll] = useState()
   const scrollContaninerRef = useRef()
-  const { direction, click, bounceTop, bounceBottom, refresh, startY } = props
+  const { direction, click, bounceTop, bounceBottom, threshold, stop, bounceTime } = props
   
   useEffect(() => {
     const scroll = new BScroll(scrollContaninerRef.current, {
-      startY,
       scrollX: direction === "horizental",
       scrollY: direction === "vertical",
+      bounceTime,
+      pullDownRefresh: !!pullDown && {
+        threshold,
+        stop
+      },
       probeType: 3,
       click: click,
       bounce:{
@@ -66,21 +72,13 @@ const Scroll = forwardRef((props, ref) => {
   }, [bScroll, pullUp, pullUpDebounce])
   useEffect(() => {
     if (!bScroll || !pullDown) return
-    bScroll.on('touchEnd', (pos) => {
-      //判断用户的下拉动作
-      if(pos.y > startY) {
-        pullDownDebounce();
-      }
+    bScroll.on('pullingDown', () => {
+      pullDownDebounce();
     })
     return () => {
-      bScroll.off('touchEnd')
+      bScroll.off('pullingDown')
     }
-  }, [bScroll, pullDown, pullDownDebounce, startY])
-  useEffect(() => {
-    if(refresh && bScroll){
-      bScroll.refresh();
-    }
-  });
+  }, [bScroll, pullDown, pullDownDebounce])
   useImperativeHandle(ref, () => ({
     getBScroll() {
       if(bScroll) {
@@ -97,7 +95,9 @@ const Scroll = forwardRef((props, ref) => {
 
 Scroll.defaultProps = {
   direction: 'vertical',
-  startY: 0,
+  threshold: 90,
+  stop: 40,
+  bounceTime: 1000,
   click: true,
   refresh: true,
   bounceTop: true,
@@ -109,7 +109,9 @@ Scroll.defaultProps = {
 
 Scroll.propTypes = {
   direction: PropTypes.oneOf(['vertical', 'horizental']),
-  startY: PropTypes.number,
+  threshold: PropTypes.number,
+  stop: PropTypes.number,
+  bounceTime: PropTypes.number,
   click: PropTypes.bool,
   refresh: PropTypes.bool,
   bounceTop: PropTypes.bool,

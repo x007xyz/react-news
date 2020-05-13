@@ -23,6 +23,7 @@ function Home() {
   const listRef = useRef()
 
   const onPullUp = () => {
+    if (list.length === 0) return
     getList(newsId, list[list.length - 1].id).then((data) => {
       const load = listRef.current.load
       setList(list.concat(data))
@@ -31,13 +32,17 @@ function Home() {
   }
   const onPullDown = () => {
     getList(newsId).then((data) => {
+      const finishPullDown = listRef.current.finishPullDown
+      setList(data)
+      finishPullDown()
+    })
+  }
+  useEffect(() => {
+    getList(newsId).then((data) => {
       const refresh = listRef.current.refresh
       setList(data)
       refresh()
     })
-  }
-  useEffect(() => {
-    onPullDown()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newsId])
   return (

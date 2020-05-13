@@ -1,10 +1,14 @@
 import React from 'react'
 import styled from "styled-components";
+import {Link} from 'react-router-dom';
 
 const ItemContainer = styled.div`
   background-color: #fff;
   padding: 10px 15px;
   position: relative;
+  a {
+    text-decoration: none;
+  }
 `
 const ItemMain = styled.div`
   display: flex;
@@ -45,12 +49,14 @@ const ItemLine = styled.div`
 `
 
 function NewsItem(props) {
-  const { cover, title, author_name, published_at } = props
+  const { post_id, cover, title, author_name, published_at } = props
   return (<ItemContainer>
-    <ItemMain>
-      <img src={cover} alt={title}/>
-      <div>{title}</div>
-    </ItemMain>
+    <Link to={"/detail/" + post_id }>
+      <ItemMain>
+        <img src={cover} alt={title}/>
+        <div>{title}</div>
+      </ItemMain>
+    </Link>
     <ItemInfo>
       <span>{author_name}</span>
       <span>{published_at}</span>

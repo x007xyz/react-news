@@ -6,6 +6,7 @@ const TabsContainer = styled.div`
   height: 42px;
   line-height: 42px;
   border-bottom: 1px solid #ccc;
+  background-color: #fff;
 `
 
 const List = styled.div`
