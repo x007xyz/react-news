@@ -1,43 +1,48 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useParams, useHistory } from 'react-router-dom';
-
-import http from '../../utils/http';
+import { connect } from 'react-redux';
+import { getNewsDetail, changeCurrentNews } from "../../store/actions";
 import { Container, MainContainer, TitleHeader, TitleMain, BackBtn, Content, Title, InfoWrapper } from "./style";
 
 function Detail (props) {
   const history = useHistory()
   const { id } = useParams()
-  const [content, setContent] = useState('')
-  const [title, setTitle] = useState('')
-  const [bImage, setBImage] = useState('')
-  const [author, setAuthor] = useState('')
+  const { detail } = props
+  const { getDetail, clearDetail } = props
   useEffect(() => {
-    http.get(`/news/36kr/${id}`).then(({ content, title, cover, author_name }) => {
-      setContent(content)
-      setTitle(title)
-      setBImage(cover)
-      setAuthor(author_name)
-    })
+    if (id !== detail.post_id) {
+      clearDetail()
+      getDetail(id)
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return <Container>
     <TitleHeader>
       <BackBtn onClick={history.goBack}>{"<"}</BackBtn>
-      <TitleMain>{title}</TitleMain>
+      <TitleMain>{detail.title}</TitleMain>
     </TitleHeader>
     <MainContainer>
       <Title>
-        <img src={bImage} alt={title}/>
-        <div>{title}</div>
+        <img src={detail.cover} alt={detail.title}/>
+        <div>{detail.title}</div>
       </Title>
       <InfoWrapper>
-        <span>{author}</span>
+        <span>{detail.author_name}</span>
         <span>发表于</span>
         <span>几天前</span>
       </InfoWrapper>
-      <Content dangerouslySetInnerHTML={{__html: content}}></Content>
+      <Content dangerouslySetInnerHTML={{__html: detail.content}}></Content>
     </MainContainer>
   </Container>
 }
 
-export default Detail
+const mapStateToProps = (state) => ({
+  detail: state.current
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  getDetail: (id) => dispatch(getNewsDetail(id)),
+  clearDetail: () => dispatch(changeCurrentNews({}))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Detail)

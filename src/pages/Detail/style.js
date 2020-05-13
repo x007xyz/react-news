@@ -17,6 +17,9 @@ export const Title = styled.div`
   height: 180px;
   position: relative;
   overflow: hidden;
+  img {
+    width: 100%;
+  }
   div {
     font-size: 16px;
     font-weight: 400;

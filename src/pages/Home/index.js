@@ -1,46 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react'
-
-import http from "../../utils/http";
+import React, { useRef, useEffect } from 'react'
+import {connect} from 'react-redux';
+import { refreshList, loadList, changeSelectedNewsId } from "../../store/actions";
 
 import { Container, TitleHeader } from './style.js'
 import Tabs from './components/Tabs'
 import NewsList from "./components/NewsList";
 import NewsItem from "./components/NewsItem";
 
-const getList = (columnId = 0, minId = 0) => {
-  const params = {
-    columnId,
-    minId,
-    pageSize: 10,
-    column: 'id,post_id,title,author_name,cover,published_at,comments_count'
-  }
-  return http.get('/news', { params })
-}
 
-function Home() {
-  const [newsId, setNewsId] = useState(0)
-  const [list, setList] = useState([])
+function Home(props) {
+  const { list, newsId } = props
+  const { refresh, load, changeSelectedNewsId } = props
   const listRef = useRef()
 
   const onPullUp = () => {
     if (list.length === 0) return
-    getList(newsId, list[list.length - 1].id).then((data) => {
-      const load = listRef.current.load
-      setList(list.concat(data))
-      load()
+    load().then(() => {
+      listRef.current.load()
     })
   }
   const onPullDown = () => {
-    getList(newsId).then((data) => {
-      const finishPullDown = listRef.current.finishPullDown
-      setList(data)
-      finishPullDown()
+    load().then(() => {
+      listRef.current.finishPullDown()
     })
   }
   useEffect(() => {
-    getList(newsId).then((data) => {
+    refresh().then(() => {
       const refresh = listRef.current.refresh
-      setList(data)
       refresh()
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -48,7 +34,7 @@ function Home() {
   return (
     <Container>
       <TitleHeader>新闻资讯</TitleHeader>
-      <Tabs selectedNewsId={newsId} onChange={(value) => setNewsId(value)}></Tabs>
+      <Tabs selectedNewsId={newsId} onChange={(value) => changeSelectedNewsId(value)}></Tabs>
       <NewsList ref={listRef} pullUp={onPullUp} pullDown={onPullDown}>
         {list.map(item => {
           return (<NewsItem key={item.id} {...item}></NewsItem>)
@@ -58,4 +44,15 @@ function Home() {
   )
 }
 
-export default Home
+const mapStateToProps = (state) => ({
+  list: state.list,
+  newsId: state.newsId
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  refresh: () => dispatch(refreshList()),
+  load: () => dispatch(loadList()),
+  changeSelectedNewsId: (id) => dispatch(changeSelectedNewsId(id)),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(React.memo(Home))

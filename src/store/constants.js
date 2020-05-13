@@ -1,0 +1,3 @@
+export const SET_LIST = 'SET_LIST'
+export const SET_CURRENT_NEWS = 'SET_CURRENT_NEWS'
+export const SET_SELECTED_NEWSID = 'SET_SELECTED_NEWSID'
