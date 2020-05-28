@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useCallback } from 'react'
 import styled from "styled-components";
 import Scroll from '../../../components/Scroll';
 
@@ -58,11 +58,15 @@ function Tabs (props) {
   const { selectedNewsId } = props
   const { onChange } = props
 
-  const clickItem = (id, event) => {
-    const bScroll = scrollRef.current.getBScroll()
-    bScroll.scrollToElement(event.target, 800)
-    onChange(id)
-  }
+  const clickItem = useCallback(
+    (id, event) => {
+      const bScroll = scrollRef.current.getBScroll()
+      bScroll.scrollToElement(event.target, 800)
+      onChange(id)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
   return (
     <TabsContainer>
       <Scroll ref={scrollRef} direction={"horizental"}>
